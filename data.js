@@ -163,15 +163,6 @@ window.ZERNO = {
       "size": "tall"
     },
     {
-      "file": "foto-mvye7vt1ag",
-      "alt": "Витрина с выпечкой",
-      "caption": "Витрина с выпечкой",
-      "w": 1200,
-      "h": 900,
-      "size": "",
-      "avif": false
-    },
-    {
       "file": null,
       "alt": "Столик у окна",
       "caption": "Столик у окна",
