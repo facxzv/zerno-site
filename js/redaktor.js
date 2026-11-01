@@ -377,7 +377,9 @@
   function patchIndex(html) {
     var re = /<!--SEO:НАЧАЛО-->[\s\S]*?<!--SEO:КОНЕЦ-->/;
     if (!re.test(html)) return null;
-    return html.replace(re, function () { return seoBlock(); });
+    // метка версии у data.js: после каждой публикации браузер не берёт старый файл из кэша
+    return html.replace(re, function () { return seoBlock(); })
+      .replace(/<script src="data\.js(\?v=[^"]*)?"><\/script>/, '<script src="data.js?v=' + Date.now().toString(36) + '"></script>');
   }
   function robotsTxt() {
     var host = cleanDomain(D.site.domain), ready = host.indexOf('[[') === -1;
@@ -591,11 +593,16 @@
       var warn, where;
       if (m === 'github') {
         var r = await saveToGitHub(); warn = r.warn;
-        where = r.same ? 'Изменений по сравнению с сайтом нет, публиковать нечего.' : 'Опубликовано. Сайт обновится через 1–2 минуты' + (siteUrl() ? ': ' + siteUrl() : '.');
+        where = r.same ? 'Изменений по сравнению с сайтом нет, публиковать нечего.' : 'Опубликовано. Сайт обновится через 1–2 минуты. Если по обычной ссылке видите старое, нажмите Ctrl+F5 (браузер иногда хранит страницу до 10 минут) или откройте ссылку ниже.';
       } else if (m === 'folder') { warn = await saveToFolder(); where = 'Сохранено в папку сайта. Откройте сайт и обновите страницу (F5).'; }
       else { warn = await saveAsZip(); where = 'Архив скачан. Распакуйте его в папку сайта с заменой файлов, потом откройте сайт и обновите страницу (F5).'; }
       ORIG = ser(); newPhotos = {}; removedFiles = []; stale = false;
       say(where + (warn ? '\n' + warn : ''), 'ok');
+      if (m === 'github' && siteUrl() && !(r && r.same)) {
+        var msgEl = $('#msg');
+        msgEl.appendChild(document.createTextNode('\n'));
+        msgEl.appendChild(h('a', { href: siteUrl() + '?v=' + Date.now(), target: '_blank', rel: 'noopener', text: 'Открыть сайт с новыми правками' }));
+      }
     } catch (e) {
       say('Не удалось сохранить: ' + (e && e.message ? e.message : e) + (m === 'github' ? '\nМожно скачать архив кнопкой «Скачать архив»: ничего не потеряется.' : '\nПопробуйте скачать архив (выберите папку заново или откройте редактор в Chrome).'), 'err');
     }
