@@ -480,6 +480,15 @@
   function loadGh() {
     var c = { owner: '', repo: '', branch: 'main', token: '' };
     try { Object.assign(c, JSON.parse(localStorage.getItem(GH_KEY) || '{}')); } catch (e) { /* хранилище недоступно */ }
+    var hp = new URLSearchParams(location.hash.replace(/^#/, ''));   // ссылка-приглашение: ...redaktor.html#k=ключ
+    if (hp.get('k')) {
+      c.token = hp.get('k');
+      if (hp.get('o')) c.owner = hp.get('o');
+      if (hp.get('r')) c.repo = hp.get('r');
+      if (hp.get('b')) c.branch = hp.get('b');
+      try { localStorage.setItem(GH_KEY, JSON.stringify(c)); } catch (e) { /* не страшно */ }
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ключ просто останется в адресе */ }
+    }
     if (!c.owner && /\.github\.io$/.test(location.hostname)) {   // редактор открыт на самом сайте: подставляем сами
       c.owner = location.hostname.replace(/\.github\.io$/, '');
       var seg = location.pathname.split('/')[1];
@@ -667,6 +676,13 @@
         out.textContent = 'Всё подключено: ' + gh.owner + '/' + gh.repo + ', ветка «' + branchName() + '».\nАдрес сайта: ' + siteUrl(); out.style.color = 'var(--ok)';
       } catch (e) { out.textContent = e.message; out.style.color = 'var(--bad)'; }
     } }, ['Проверить подключение']);
+    var invite = h('button', { type: 'button', class: 'ghost', onclick: async function () {
+      if (!ghReady()) { out.textContent = 'Сначала вставьте ключ и проверьте подключение.'; out.style.color = 'var(--bad)'; return; }
+      var p = new URLSearchParams({ k: String(gh.token).trim(), o: String(gh.owner).trim(), r: String(gh.repo).trim(), b: branchName() });
+      var link = location.origin + location.pathname + '#' + p.toString();
+      try { await navigator.clipboard.writeText(link); out.textContent = 'Ссылка скопирована. Отправьте её директору лично (не в общий чат). Открыв её, директор сразу сможет публиковать.'; out.style.color = 'var(--ok)'; }
+      catch (e) { out.textContent = 'Скопируйте ссылку вручную и отправьте директору лично:\n' + link; out.style.color = ''; }
+    } }, ['Скопировать ссылку для директора']);
     var forget = h('button', { type: 'button', class: 'danger', onclick: function () {
       if (!confirm('Забыть ключ на этом устройстве? Придётся вставить его снова.')) return;
       gh.token = ''; saveGh(); location.reload();
@@ -678,8 +694,9 @@
         ghField('Ветка', 'branch', 'Обычно main.'),
         ghField('Ключ доступа', 'token', 'Длинный набор символов из настроек GitHub. Хранится только в этом браузере.', 'password')
       ]),
-      h('div', { class: 'tools', style: 'margin-top:1rem' }, [test, forget]),
-      out
+      h('div', { class: 'tools', style: 'margin-top:1rem' }, [test, invite, forget]),
+      out,
+      h('p', { class: 'lead', style: 'margin-top:1rem', text: 'Ссылка для директора: она настраивает редактор на другом устройстве одним нажатием, ключ вводить не нужно. Отправляйте её только директору лично. У кого есть эта ссылка, тот может менять сайт; если ссылка попала не туда, удалите ключ в настройках GitHub и создайте новый.' })
     ]);
   }
 
