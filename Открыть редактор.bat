@@ -1,2 +1,2 @@
 @echo off
-start "" "%~dp0redaktor.html"
+start "" "https://facxzv.github.io/zerno-site/redaktor.html"

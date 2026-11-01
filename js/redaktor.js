@@ -477,6 +477,7 @@
 
   /* ---------- Публикация в интернет (GitHub) ---------- */
   var GH_KEY = 'zerno-gh';
+  var ONLINE_EDITOR = 'https://facxzv.github.io/zerno-site/redaktor.html';   // адрес редактора на сайте (поменяйте, когда появится свой домен)
   function loadGh() {
     var c = { owner: '', repo: '', branch: 'main', token: '' };
     try { Object.assign(c, JSON.parse(localStorage.getItem(GH_KEY) || '{}')); } catch (e) { /* хранилище недоступно */ }
@@ -723,9 +724,12 @@
       var cur = els.indexOf(document.activeElement), nx = els[(cur + 1) % els.length];
       nx.scrollIntoView({ block: 'center', behavior: 'smooth' }); nx.focus({ preventScroll: true });
     });
-    if (!window.showDirectoryPicker) {
-      if (!ghReady()) say('Этот браузер не умеет записывать прямо в папку сайта, поэтому правки сохранятся архивом. Для сохранения в один клик откройте редактор в Chrome или Edge или настройте публикацию (раздел «Публикация»).', '');
-    } else restoreFolder();
+    if (window.showDirectoryPicker) restoreFolder();
+    if (!ghReady()) {
+      var local = location.protocol === 'file:' || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+      if (local) say('Вы открыли копию редактора с этого компьютера. Правки отсюда НЕ попадут на сайт в интернете: они сохранятся только в папку или архив.\nЧтобы публиковать, откройте редактор на сайте: ' + ONLINE_EDITOR + ' (нужна ссылка-приглашение от помощника).', 'err');
+      else say('На этом устройстве не подключена публикация, поэтому правки можно только скачать архивом, на сайт они не попадут.\nОткройте ссылку-приглашение от помощника (один раз) или вставьте ключ в разделе «Публикация» внизу.', 'err');
+    }
     updateButtons();
     touch();
   }
