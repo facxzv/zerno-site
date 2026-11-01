@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /redaktor.html
+Disallow: /data.backup.js
+
+# Когда у сайта появится адрес, впишите его в редакторе: строка ниже включится сама.
+# Sitemap: https://[[ДОМЕН]]/sitemap.xml

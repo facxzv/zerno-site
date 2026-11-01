@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Редактор сайта «Зерно»</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <style>
+    :root { --cream:#F6EFE4; --beige:#EADDC8; --paper:#FBF7F0; --ink:#2B1D16; --text:#3A2A20; --muted:#6B5645; --accent:#A2431F; --accent-d:#85361A; --todo:#FFE08A; --line:rgba(58,42,32,.25); --ok:#2F6B3A; --bad:#A12222; }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--cream); color: var(--text); font: 17px/1.55 "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; padding-bottom: 6rem; }
+    @font-face { font-family: "Nunito"; font-weight: 200 1000; font-display: swap; src: url("assets/fonts/nunito-cyrillic.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+2116; }
+    @font-face { font-family: "Nunito"; font-weight: 200 1000; font-display: swap; src: url("assets/fonts/nunito-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+2000-206F, U+20AC; }
+    h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; color: var(--ink); margin: 0; line-height: 1.15; }
+    .wrap { width: min(100% - 2rem, 62rem); margin-inline: auto; }
+    header.top { background: var(--ink); color: var(--cream); padding: 1rem 0; }
+    header.top .wrap { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; align-items: center; justify-content: space-between; }
+    header.top h1 { color: var(--cream); font-size: 1.5rem; }
+    header.top a { color: #F2D5BE; }
+    .tabs { position: sticky; top: 0; z-index: 20; background: var(--beige); border-bottom: 1px solid var(--line); }
+    .tabs .wrap { display: flex; gap: .25rem; overflow-x: auto; padding-block: .35rem; }
+    .tabs a { white-space: nowrap; padding: .6rem 1rem; border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 800; }
+    .tabs a:hover { background: var(--paper); }
+    section.card, .intro { background: var(--paper); border-radius: 1rem; padding: 1.5rem; margin: 1.25rem 0; box-shadow: 0 1px 0 var(--line); }
+    section.card > h2 { font-size: 1.6rem; margin-bottom: .35rem; }
+    .lead { color: var(--muted); margin: 0 0 1.25rem; }
+    .intro ol { margin: .5rem 0 0; padding-left: 1.25rem; }
+    .intro li { margin-bottom: .35rem; }
+    .group { border-top: 1px solid var(--line); padding-top: 1rem; margin-top: 1.25rem; }
+    .group h3 { font-size: 1.15rem; margin-bottom: .75rem; }
+    .grid { display: grid; gap: 1rem 1.25rem; }
+    @media (min-width: 46rem) { .grid.two { grid-template-columns: 1fr 1fr; } .grid .full { grid-column: 1 / -1; } }
+    label.f { display: grid; gap: .3rem; font-weight: 800; }
+    label.f small { font-weight: 400; color: var(--muted); }
+    input[type=text], input[type=number], input[type=date], textarea, select {
+      font: inherit; font-weight: 400; color: var(--text); width: 100%; padding: .7rem .8rem; border: 2px solid var(--line); border-radius: .6rem; background: #fff; min-height: 2.9rem;
+    }
+    textarea { min-height: 6.5rem; resize: vertical; }
+    input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .is-todo { background: var(--todo) !important; border-color: #D6A91F !important; }
+    .check { display: flex; gap: .6rem; align-items: center; font-weight: 800; min-height: 2.9rem; }
+    .check input { width: 1.4rem; height: 1.4rem; accent-color: var(--accent); }
+    button, .btn { font: inherit; font-weight: 800; border-radius: 999px; border: 2px solid var(--accent); background: var(--accent); color: #fff; padding: .65rem 1.3rem; min-height: 2.9rem; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; }
+    button:hover, .btn:hover { background: var(--accent-d); border-color: var(--accent-d); }
+    button.ghost { background: transparent; color: var(--accent); }
+    button.ghost:hover { background: var(--accent); color: #fff; }
+    button.mini { min-height: 2.5rem; min-width: 2.5rem; padding: .3rem .7rem; }
+    button.danger { border-color: var(--bad); color: var(--bad); background: transparent; }
+    button.danger:hover { background: var(--bad); color: #fff; }
+    button:disabled { opacity: .5; cursor: default; }
+    .cat { border: 2px solid var(--line); border-radius: .9rem; padding: 1rem; margin-top: 1rem; background: #fff; }
+    .cat-head { display: grid; gap: .75rem; grid-template-columns: 1fr; align-items: end; }
+    @media (min-width: 46rem) { .cat-head { grid-template-columns: 1fr auto auto; } }
+    .tools { display: flex; gap: .4rem; flex-wrap: wrap; }
+    .item { display: grid; gap: .5rem; grid-template-columns: 1fr 6.5rem; padding: .75rem 0; border-top: 1px dashed var(--line); }
+    .item .note, .item .tools { grid-column: 1 / -1; }
+    @media (min-width: 46rem) { .item { grid-template-columns: 1.3fr 7rem 1.5fr auto; align-items: center; } .item .note, .item .tools { grid-column: auto; } }
+    .photo { display: grid; gap: .75rem 1rem; grid-template-columns: 7rem 1fr; padding: 1rem 0; border-top: 1px dashed var(--line); align-items: start; }
+    .photo .thumb { width: 7rem; height: 5.25rem; border-radius: .6rem; object-fit: cover; background: var(--beige); display: grid; place-items: center; text-align: center; font-size: .8rem; color: var(--muted); padding: .3rem; }
+    .photo .body { display: grid; gap: .6rem; }
+    .photo .row2 { display: grid; gap: .6rem; }
+    @media (min-width: 46rem) { .photo .row2 { grid-template-columns: 1fr 1fr 11rem; } }
+    .bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--ink); color: var(--cream); padding: .75rem 0; box-shadow: 0 -4px 18px rgba(0,0,0,.25); }
+    .bar .wrap { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; justify-content: space-between; }
+    .bar .state { font-weight: 700; }
+    .bar .state .dot { display: inline-block; width: .7rem; height: .7rem; border-radius: 50%; background: #7bd18b; margin-right: .4rem; }
+    .bar .state.dirty .dot { background: #FFB347; }
+    .bar button { border-color: #F2D5BE; }
+    .bar button.ghost { color: #F2D5BE; border-color: #F2D5BE; }
+    .bar button.ghost:hover { background: #F2D5BE; color: var(--ink); }
+    #msg { margin: 1rem 0; padding: 1rem 1.2rem; border-radius: .8rem; background: #fff; border: 2px solid var(--line); font-weight: 700; white-space: pre-line; }
+    #msg:empty { display: none; }
+    #msg.ok { border-color: var(--ok); color: var(--ok); }
+    #msg.err { border-color: var(--bad); color: var(--bad); }
+    details { margin-top: .75rem; } summary { cursor: pointer; font-weight: 800; }
+    .folder { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; margin-top: 1rem; }
+    code { background: var(--beige); padding: .1em .4em; border-radius: .3em; }
+    .count { background: var(--todo); color: #3A2A20; border-radius: 999px; padding: .1rem .7rem; font-weight: 800; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1>Редактор сайта «Зерно»</h1>
+      <a href="index.html" target="_blank" rel="noopener">Открыть сайт в новой вкладке</a>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Разделы редактора">
+    <div class="wrap">
+      <a href="#s-contacts">Контакты</a>
+      <a href="#s-birthday">Праздник</a>
+      <a href="#s-texts">Тексты</a>
+      <a href="#s-menu">Меню и цены</a>
+      <a href="#s-photos">Фото</a>
+      <a href="#s-publish">Публикация</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <div class="intro">
+      <h2>Как пользоваться</h2>
+      <ol>
+        <li>Меняйте цены, тексты и фото ниже. Жёлтые поля: там ещё не хватает данных.</li>
+        <li>Нажмите кнопку внизу. Если помощник настроил публикацию, это <b>«Сохранить и опубликовать»</b>: через 1–2 минуты изменения будут на сайте по ссылке, больше ничего делать не нужно.</li>
+        <li>Если публикация не настроена, работает «Выбрать папку сайта» (Chrome или Edge на компьютере) или «Скачать архив».</li>
+      </ol>
+      <details>
+        <summary>Не получается выбрать папку (Firefox, Safari, телефон)?</summary>
+        <p>Нажмите «Скачать архив». Распакуйте его в папку сайта, согласившись на замену файлов. Или настройте публикацию в интернет (раздел «Публикация» внизу).</p>
+      </details>
+    </div>
+    <div id="msg" role="status" aria-live="polite"></div>
+    <div id="sections"></div>
+  </main>
+
+  <div class="bar">
+    <div class="wrap">
+      <div class="state" id="state"><span class="dot"></span><span id="state-text">Изменений нет</span> <span id="mode-note" style="font-weight:400;opacity:.85"></span> <span class="count" id="todo-count" hidden></span></div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button type="button" class="ghost" id="b-todo" hidden>Показать незаполненное</button>
+        <button type="button" class="ghost" id="b-folder">Выбрать папку сайта</button>
+        <button type="button" class="ghost" id="b-zip" hidden>Скачать архив</button>
+        <button type="button" id="b-save">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="js/redaktor.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "zerno-tools",
+  "private": true,
+  "type": "module",
+  "description": "Вспомогательные скрипты сайта кофейни «Зерно» (нужны только для фото и логотипа, сам сайт их не использует)",
+  "scripts": {
+    "photos": "node optimize-photos.mjs",
+    "check": "node check.mjs",
+    "brand": "node make-brand.mjs"
+  },
+  "dependencies": {
+    "sharp": "^0.34.0"
+  },
+  "devDependencies": {
+    "@fontsource/lora": "^5.2.0",
+    "@fontsource-variable/lora": "^5.2.0",
+    "@fontsource-variable/nunito": "^5.2.0",
+    "opentype.js": "^1.3.4"
+  }
+}
